@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:kioxkef/models/viewStyles.dart';
+import 'package:kioxkef/views/Login.dart';
 import 'package:kioxkef/views/userData.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawerPage extends StatelessWidget {
     
@@ -54,14 +55,18 @@ class DrawerPage extends StatelessWidget {
                listItem(Feather.image,"Revistas",Feather.arrow_down_circle,(){}),
                  listItem(Feather.layout,"Banda Desenhada",Feather.arrow_down_circle,(){}),
                  listItem(Feather.settings,"Definicoes",Feather.arrow_down_circle,(){}),
-                  listItem(Icons.power,"Sair",Feather.arrow_down_circle,(){})
+                  listItem(Icons.power,"Sair",Feather.arrow_down_circle,()async{
+                    showAlertDialog(context,() async{
+                        logoff(context);
+                    });
+                  })
         ],
 
       ),
 
     );
   }
-  Widget listItem(IconData icon,String titulo,IconData iconPrefix,Function calback){
+Widget listItem(IconData icon,String titulo,IconData iconPrefix,Function calback){
     return ListTile(
             leading: Icon(icon),
             title: Text("$titulo"),
@@ -71,4 +76,49 @@ class DrawerPage extends StatelessWidget {
             },
       );
   }
+
+ void logoff(BuildContext context)async{
+   SharedPreferences preferences = await SharedPreferences.getInstance();
+   await preferences.remove('email');
+   await preferences.remove('nome');
+   Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context) =>  Login()),(Route<dynamic> route) => false);
+ }
+
+ showAlertDialog(BuildContext context,Function callBack) {
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Não"),
+    onPressed:  () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = FlatButton(
+    child: Text("Sim"),
+    onPressed: (){
+      callBack();
+      Navigator.pop(context);
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Aviso"),
+    content: Text("Tem a certeza que pretende terminar a Sessão"),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+
+
 }

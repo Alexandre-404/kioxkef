@@ -1,8 +1,8 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:kioxkef/models/viewStyles.dart';
 import 'package:kioxkef/views/Cardcompras.dart';
+import 'package:kioxkef/views/biblioteca/biblioteca.dart';
 import 'package:kioxkef/views/desejosLista.dart';
 import 'package:kioxkef/views/searchPage.dart';
 
@@ -28,7 +28,7 @@ class EndDrawerPage extends StatelessWidget {
             ),
             child: FlatButton(onPressed: (){
                Navigator.pop(context);
-               Navigator.push(context,MaterialPageRoute(builder: (context) => CardCompras()));
+               Navigator.push(context,MaterialPageRoute(builder: (context) => CardCompras()));   
             }, child:Column(
                mainAxisAlignment: MainAxisAlignment.end,
                crossAxisAlignment: CrossAxisAlignment.end,
@@ -58,7 +58,10 @@ class EndDrawerPage extends StatelessWidget {
              Navigator.pop(context);
             Navigator.push(context,MaterialPageRoute(builder: (context) => WishlistWidget()));
          }),
-         listItem("Biblioteca",Feather.bookmark,(){}),
+         listItem("Biblioteca",Feather.bookmark,(){
+            Navigator.pop(context);
+            Navigator.push(context,MaterialPageRoute(builder: (context) => Biblioteca()));
+         }),
          listItem("Historico",Icons.history,(){}),
         ],
 

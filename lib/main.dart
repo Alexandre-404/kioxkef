@@ -27,25 +27,40 @@ class _MainState extends State<Main> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Future<String> _email,_nome;
   
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   startTimeout() {
     return new Timer(Duration(seconds: 2), handleTimeout);
   }
   
   Future<void> _checkSession(String nome,String email) async {
+
     final SharedPreferences prefs = await _prefs;
     //final int counter = (prefs.getInt('counter') ?? 0) + 1;
       if(prefs.getString("email") != null){
          print(prefs.getString("email")+prefs.getString("nome"));
          Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context) =>  HomeView(prefs.getString("nome").replaceAll('"', ""),prefs.getString("email").replaceAll('"', ""))),(Route<dynamic> route) => false);
+       
       }
   }
-    
+  
   void handleTimeout() {
     changeScreen();
   }
 
+
   changeScreen() async {
-   Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => Login()));
+    //  if(_connectionStatus != "Conected"){
+    //   Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context) => Biblioteca()),(Route<dynamic> route) => false);
+    //   return;
+    // }
+    
+     Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => Login()));
+    
   }
 
   @override
@@ -67,5 +82,9 @@ class _MainState extends State<Main> {
       body: Splash(),
     );
   }
+
+
+
+
 
 }

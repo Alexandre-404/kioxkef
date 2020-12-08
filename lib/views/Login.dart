@@ -13,6 +13,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
    Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    Future<String> _email,_nome;
 
@@ -21,7 +22,7 @@ class _LoginState extends State<Login> {
     final _emailController = TextEditingController();
 
     final _scafoldkey = GlobalKey<ScaffoldState>();
-    bool isloading = false;
+    bool isloading = false,isbosecured = true;
 
     Future<void> _login() async{
      if(_senhaController.text == "" || _emailController.text == ""){
@@ -59,7 +60,7 @@ class _LoginState extends State<Login> {
     }
   }
    
-    Future<void> _checkSession(String nome,String email) async {
+  Future<void> _checkSession(String nome,String email) async {
        final SharedPreferences prefs = await _prefs;
     //final int counter = (prefs.getInt('counter') ?? 0) + 1;
       if(prefs.getString("email") != null){
@@ -68,7 +69,7 @@ class _LoginState extends State<Login> {
       }
     }
 
-    Future<void> _saveSession(String nome) async {
+  Future<void> _saveSession(String nome) async {
     final SharedPreferences prefs = await _prefs;
     //final int counter = (prefs.getInt('counter') ?? 0) + 1;
 
@@ -117,13 +118,13 @@ Widget build(BuildContext context) {
               children: [
                logo(),
                textLogo()
-              ], 
+              ],
              ),
             ),
 
             Container(
              width: MediaQuery.of(context).size.width-25,
-             height: MediaQuery.of(context).size.height /3,
+            //  height: MediaQuery.of(context).size.height /2.4,
              decoration: BoxDecoration(
              color: Color.fromRGBO(175, 175, 175,.3),
              borderRadius: BorderRadius.all(Radius.circular(10))
@@ -135,8 +136,8 @@ Widget build(BuildContext context) {
                  child: Column(
                  children: <Widget>[
                      Text(""),
-                     inputlista("Nome de Utilizador",false),
-                     inputlista("Palavra-Passe",true),
+                     inputlista("Email",false),
+                     senhaInput("Palavra-Passe"),
                      loginButton("Iniciar Sessao",Color.fromRGBO(253, 172, 66,1),true,Colors.white,(){
                         _login();
                          setState(() {
@@ -161,8 +162,8 @@ Widget build(BuildContext context) {
 
 Widget loginButton(String labelText,Color cor,bool isSubmited,Color corTexto,Function submit){
   return SizedBox(
-          width: MediaQuery.of(context).size.width-40, //Full width
-          height: 60,
+          width: MediaQuery.of(context).size.width-45, //Full width
+          height: 55,
     child:FlatButton(
        color: cor,
        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -215,12 +216,45 @@ Widget inputlista(String label,bool isObcure){
     textAlign: TextAlign.left,
     obscureText: isObcure,
     decoration: InputDecoration(
-      suffixIcon: isObcure?Icon(Feather.eye,color: Colors.white,):Icon(Feather.user,color: Colors.white,),
+      suffixIcon: isObcure?IconButton(icon: Icon(Feather.eye,color: Colors.white,), onPressed: (){
+        setState(() {
+          isObcure = false;
+        });
+      }):Icon(Icons.person,color: Colors.white,),
       hintText: '$label',
       hintStyle: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),
       fillColor: Color.fromRGBO(175, 175, 175, .5),
       filled: true,
-      contentPadding: const EdgeInsets.all(20.0),
+      contentPadding: const EdgeInsets.all(15.0),
+      border:OutlineInputBorder(
+        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.all(Radius.circular(5.0),),
+    ),
+
+    ),
+  )
+  );
+}
+
+Widget senhaInput(String label){
+  return Padding(
+    padding: EdgeInsets.only(left: 10,right: 10,bottom: 10,top: 10),
+    child:TextField(
+    controller: _senhaController,
+    style: TextStyle(fontSize: 15.0, color: Colors.white),
+    textAlign: TextAlign.left,
+    obscureText: isbosecured,
+    decoration: InputDecoration(
+      suffixIcon:IconButton(icon: Icon(isbosecured == true?Icons.visibility_off:Icons.visibility,color: Colors.white,), onPressed: (){
+        setState(() {
+         isbosecured = !isbosecured; 
+        });
+      }),
+      hintText: '$label',
+      hintStyle: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),
+      fillColor: Color.fromRGBO(175, 175, 175, .5),
+      filled: true,
+      contentPadding: const EdgeInsets.all(15.0),
       border:OutlineInputBorder(
         borderSide: BorderSide.none,
         borderRadius: BorderRadius.all(Radius.circular(5.0),),
@@ -232,8 +266,7 @@ Widget inputlista(String label,bool isObcure){
 
 }
 
-     
-    void sucesso(String nome,String email){
+void sucesso(String nome,String email){
       _scafoldkey.currentState.showSnackBar(
         SnackBar( content: Text("Login feito com sucesso!"),
         backgroundColor: Colors.green, duration: Duration(seconds: 3),)
@@ -248,7 +281,7 @@ Widget inputlista(String label,bool isObcure){
    
     }
 
-    void falha(){
+void falha(){
         _scafoldkey.currentState.showSnackBar(
         SnackBar( content: Text("Dados invalidos ,Porfavor insere os dados correctamente"),
            backgroundColor: Colors.redAccent, duration: Duration(seconds: 4),)

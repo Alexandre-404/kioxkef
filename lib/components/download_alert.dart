@@ -2,12 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kioxkef/components/custom_alert.dart';
 import 'package:kioxkef/util/const.dart';
+import 'package:kioxkef/models/functions.dart';
 
 class DownloadAlert extends StatefulWidget {
+  final String bookname;
+  final String imageUrl;
   final String url;
   final String path;
 
-  DownloadAlert({Key key, @required this.url, @required this.path})
+  DownloadAlert({Key key, @required this.url, @required this.path,this.bookname,this.imageUrl})
       : super(key: key);
 
   @override
@@ -34,6 +37,7 @@ class _DownloadAlertState extends State<DownloadAlert> {
 
         //Check if download is complete and close the alert dialog
         if (receivedBytes == totalBytes) {
+          saveListLocalBook(widget.bookname,widget.imageUrl,widget.path);
           Navigator.pop(context, '${Constants.formatBytes(total, 1)}');
         }
       },

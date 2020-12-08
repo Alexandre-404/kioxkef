@@ -25,14 +25,16 @@ class _PayState extends State<Pay> {
 
   bool concluido = false,isonCard = false;
 
+  bool tb = true,baiD = false;
+
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         elevation: 0.0,
         backgroundColor: primaryColor,
-       title: Text("Pagamento"),
+       title: Text("Detalhes de Pagamento"),
          actions: [
              Icon(Icons.more_vert,color: Colors.white,)
           ],
@@ -46,19 +48,29 @@ class _PayState extends State<Pay> {
            pageTitle("Detalhes do Produto",context),
           _horiBox(widget.titulo,widget.capa,widget.preco),
            pageTitle("Método de Pagamento",context),
-          cardList(Colors.grey,"Paypal","****@gmail.com"),
-          cardList(primaryColor,"Referência Multcaixa","****@gmail.com"),
-           cardList(Colors.grey,"Transferência Bancária","IBAN: 832 749 832 8974"),
-            cardList(Colors.grey,"Mastercard","****@gmail.com"),
-
+          // cardList(Colors.grey,"Paypal","****@gmail.com"),
+           cardList(tb == true?Colors.green:Colors.grey,"Transferência Bancária","IBAN: 832 749 832 8974",tb == true?Icons.check_circle:Icons.check_circle_outline,(){
+             setState(() {
+                tb = true;
+                baiD = false;
+             });
+           }),
+           cardList(baiD == true?Colors.green:Colors.grey,"Bai Directo","****@gmail.com",baiD == true?Icons.check_circle:Icons.check_circle_outline,(){
+             setState(() {
+                baiD = true;
+                tb = false;
+              });
+           }),
+          
             Expanded(
+              flex: 1,
               child:Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.end,
+              // mainAxisSize: MainAxisSize.max,
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 loginButton("Adicionar no Carrinho",Colors.green,false, () async => setCarrinho()),
-                loginButton("Continuar",primaryColor,true, () async => startDownload(widget.url,widget.nome))
+                loginButton("Terminar Compra",Colors.red,true, () async => startDownload(widget.url,widget.nome))
               ],
             )
           )
@@ -69,21 +81,22 @@ class _PayState extends State<Pay> {
     );
   }
 
-Widget cardList(Color cor,String label,String email){
-  return Card(
+Widget cardList(Color cor,String label,String email,IconData icon,Function callback){
+  return FlatButton(onPressed: (){
+    callback();
+  },
+   child:Card(
     elevation:0.5,
     shadowColor:Colors.grey[800],
     child: ListTile(
       title: Text("$label"),
       subtitle: Text("$email"),
-      trailing: Icon(Icons.add_circle_outline,color: cor,),
-      onTap: (){
-
-      },
+      trailing: Icon(icon,color: cor,),
+     
     ),
-  
-  );
+  ));
 }
+
 Widget _horiBox(String titulo,String imageUrl,String preco){
   FlutterMoneyFormatter precoProduto = FlutterMoneyFormatter(amount: double.parse(preco));
   return  GestureDetector(
@@ -213,6 +226,8 @@ startDownload(String url, String filename) async {
       builder: (context) => DownloadAlert(
         url: url,
         path: path,
+        bookname: widget.nome,
+        imageUrl: widget.capa
       ),
     ).then((v) async {
 

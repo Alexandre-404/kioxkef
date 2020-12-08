@@ -139,12 +139,16 @@ class _WishlistWidgetState extends State<WishlistWidget> {
                   Container(
                           height: 30,
                           child: IconButton(icon:Icon(Feather.trash,size: 25, color:Colors.red,), onPressed: () async{
-                            final SharedPreferences prefs = await _prefs;
-                            prefs.remove(titulo+"_favorite");
-                            int value = await DatabaseHelper.instance.delete(int.parse(id));
-                            loadAsset();
-
-                             setState(() {});
+                            
+                            showAlertDialog(context,() async{
+                                final SharedPreferences prefs = await _prefs;
+                                prefs.remove(titulo+"_favorite");
+                                int value = await DatabaseHelper.instance.delete(int.parse(id));
+                                loadAsset();
+                                setState(() {});
+                            });
+                            
+                            
 
                           })
                         )

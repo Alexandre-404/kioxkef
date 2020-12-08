@@ -1,12 +1,7 @@
-import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epub_viewer/epub_viewer.dart';
 import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:kioxkef/components/download_alert.dart';
 import 'package:kioxkef/models/viewStyles.dart';
-import 'package:kioxkef/util/const.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class PaySucess extends StatefulWidget {
 
@@ -116,7 +111,7 @@ Widget loginButton(String labelText,Color cor,bool isSubmited){
    ));
 }
   
-  openBook(String src) async{
+openBook(String src) async{
     if (src.isNotEmpty) {
         EpubViewer.setConfig(
                 identifier: 'androidBook',

@@ -1,19 +1,13 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:badges/badges.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import 'package:kioxkef/components/Endrawer.dart';
 import 'package:kioxkef/components/drawer.dart';
 import 'package:http/http.dart' as http;
 import 'package:kioxkef/models/database.dart';
 import 'package:kioxkef/models/viewStyles.dart';
-import 'package:kioxkef/util/const.dart';
-import 'package:kioxkef/views/detalhes.dart';
 import 'package:kioxkef/views/tabs.dart';
-import 'package:path_provider/path_provider.dart';
 
 
 class HomeView extends StatefulWidget {
@@ -36,6 +30,7 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _fetchData();
     getTotalDb();
+    activateCount(widget.email);
   }
 
 List list = List();
@@ -193,5 +188,39 @@ _fetchData() async {
       
     });
  }
+
+
+void activateCount(String email) async{
+
+  final response =await http.get("https://www.visualfoot.com/api/getUserData.php?email=$email");
+    String isd = "";
+    if (response.statusCode == 200) {
+     
+     List userdataList = json.decode(response.body) as List;
+
+     setState(() {
+       isd = userdataList[0]['active'];
+     });
+
+    } else {
+      throw Exception('Failed to load photos');
+    }
+
+    if(isd != "0")
+      return;
+
+    _scaffoldKey.currentState.showSnackBar(
+        SnackBar( content: Text("Verifique o seu e-mail para activar a Conta"),
+           backgroundColor: Colors.redAccent, duration: Duration(minutes: 30)),
+    );
+
+      //  Future.delayed(Duration(seconds: 2)).then((_){
+      //    setState(() {
+      //       isloading = false;
+      //    });
+      // });
+    
+    }
+
 
 }

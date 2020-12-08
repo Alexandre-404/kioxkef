@@ -1,17 +1,12 @@
-import 'dart:ffi';
-import 'dart:io';
+
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_money_formatter/flutter_money_formatter.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:ui';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:kioxkef/models/database.dart';
 import 'package:kioxkef/models/viewStyles.dart';
-import 'package:kioxkef/util/const.dart';
-import 'package:kioxkef/views/detalhes.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CardCompras extends StatefulWidget {
@@ -26,7 +21,6 @@ class _CardComprasState extends State<CardCompras> {
   List listFiles = new List();
   String totalPagarLabel;
   double totalPagar = 0;
-  int qtd = 1;
 
   List<Map<String,dynamic>> queryRowsCard = new List<Map<String,dynamic>>();
 
@@ -86,7 +80,7 @@ class _CardComprasState extends State<CardCompras> {
                     // color: Colors.amber,
                     borderRadius: BorderRadius.all(Radius.circular(5))
                   ),
-                  child:Text("Terminar a Compra!")
+                  child:Text("Terminar a Compra")
                 ),)
               ],
               )
@@ -97,7 +91,7 @@ class _CardComprasState extends State<CardCompras> {
               child:ListView.builder(
             itemCount: queryRowsCard.length,
             itemBuilder: (BuildContext context, int index){
-            return queryRowsCard[index]['tipo'] == 1?horisontal(titulo:queryRowsCard[index]['nome'], imageUrl:queryRowsCard[index]['imageUrl'], autor:"", likes:"0", urlBook:queryRowsCard[index]['urlBook'], preco:queryRowsCard[index]['preco'], descricao:queryRowsCard[index]['descricao'], id:queryRowsCard[index]['id'].toString()):SizedBox();
+            return queryRowsCard[index]['tipo'] == 1?horisontal(titulo:queryRowsCard[index]['nome'], imageUrl:queryRowsCard[index]['imageUrl'], autor:"", likes:"0", urlBook:queryRowsCard[index]['urlBook'], preco:queryRowsCard[index]['preco'], descricao:queryRowsCard[index]['descricao'], id:queryRowsCard[index]['id'].toString(),qtdview: queryRowsCard[index]['quantidade']):SizedBox();
             },
       
       )
@@ -110,11 +104,9 @@ class _CardComprasState extends State<CardCompras> {
 
 
 
- Widget horisontal({String titulo,String imageUrl,String autor,String likes,String urlBook,String preco,String descricao,String id,File fileACtual}){
+Widget horisontal({String titulo,String imageUrl,String autor,String likes,String urlBook,String preco,String descricao,String id,int qtdview}){
   FlutterMoneyFormatter precoProduto = FlutterMoneyFormatter(amount: double.parse(preco));
-  
-  return 
-  Card( 
+  return Card( 
   color: Colors.white,
   borderOnForeground:true,
   shadowColor:Colors.grey[100],
@@ -164,7 +156,7 @@ class _CardComprasState extends State<CardCompras> {
                    crossAxisAlignment: CrossAxisAlignment.end,
                    children: [
 
-                Text((precoProduto.output.nonSymbol != "0.00"?precoProduto.output.nonSymbol+"AOA":"Gratuito"),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: precoProduto.output.nonSymbol != "0.00"?primaryColor:Colors.green),),
+                Text((precoProduto.output.nonSymbol != "0.00"?precoProduto.output.nonSymbol+" KZS":"Gratuito"),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: precoProduto.output.nonSymbol != "0.00"?primaryColor:Colors.green),),
               
        
                    ],
@@ -177,9 +169,26 @@ class _CardComprasState extends State<CardCompras> {
                
                  Container(
                           height: 30,
-                          child: IconButton(icon:Icon(Feather.plus_circle,size: 25, color:Colors.green,), onPressed: (){
-                            setState(() {
-                               qtd++;
+                          child: IconButton(icon:Icon(Feather.minus_circle,size: 25, color:Colors.green,), onPressed: () async{
+
+                            setState(() async{
+                               if(qtdview > 1){
+                                  qtdview--;
+                                  DatabaseHelper.instance.valuesupdate(int.parse(id),qtdview);
+                                  loadAsset();
+                                  setState(() {});
+                               }
+                                else{
+                                    showAlertDialog(context,() async{
+                                        final SharedPreferences prefs = await _prefs;
+                                        prefs.remove(titulo+"_carrinho");
+                                        int value = await DatabaseHelper.instance.delete(int.parse(id));
+                                        loadAsset();
+                                        setState(() {});
+
+                                    });
+                                  }
+                              
                             });
                           })
                         ),
@@ -187,14 +196,18 @@ class _CardComprasState extends State<CardCompras> {
                   Container(
                           height: 30,
                           alignment: Alignment.bottomCenter,
-                          child: Text("$qtd")
+                          child: Text("$qtdview")
                         ),
 
                   Container(
                           height: 30,
-                          child: IconButton(icon:Icon(Feather.minus_circle,size: 25, color:Colors.green,), onPressed: (){
-                            setState(() {
-                               qtd--;
+                          child: IconButton(icon:Icon(Feather.plus_circle,size: 25, color:Colors.green,), onPressed: () async {
+                            setState(() async{
+                                  qtdview++;
+                                  DatabaseHelper.instance.valuesupdate(int.parse(id),qtdview);
+                                     
+                                  loadAsset();
+                                  setState(() {});
                             });
                           })
                         ),
@@ -205,17 +218,20 @@ class _CardComprasState extends State<CardCompras> {
                           height: 30,
                           child: IconButton(icon:Icon(Feather.trash,size: 25, color:Colors.red,), onPressed: () async{
                            
-                            final SharedPreferences prefs = await _prefs;
-                            prefs.remove(titulo+"_carrinho");
-                            int value = await DatabaseHelper.instance.delete(int.parse(id));
-                            loadAsset();
+                           showAlertDialog(context,() async{
+                             
+                              final SharedPreferences prefs = await _prefs;
+                              prefs.remove(titulo+"_carrinho");
+                              int value = await DatabaseHelper.instance.delete(int.parse(id));
+                              loadAsset();
+                              setState(() {});
 
-                            setState(() {});
+                            });
+
                           })
                         )
                    ],),
-                  
-         
+          
             ],
           ),
         )
@@ -229,25 +245,26 @@ class _CardComprasState extends State<CardCompras> {
   ));
  }
 
-
-
 loadAsset() async {
      queryRowsCard = await DatabaseHelper.instance.queryAll(1);
      totalPagar = 0;
      for(int a=0;a < queryRowsCard.length;a++){
       if( queryRowsCard[a]['tipo'] == 1){
         String preco =  queryRowsCard[a]['preco'];
-        totalPagar+= double.parse(preco);
+        totalPagar+= double.parse(preco) *  queryRowsCard[a]['quantidade'];
+        // totalPagar+= double.parse(preco);
+        // print(queryRowsCard[a]['quantidade']);
       }
 
      }
-
     FlutterMoneyFormatter precoProduto = FlutterMoneyFormatter(amount:totalPagar);
     totalPagarLabel = precoProduto.output.nonSymbol;
-
-     setState(() {});
-}
-
+    
+    setState(() {});
 
 }
 
+
+
+
+}

@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:kioxkef/models/viewStyles.dart';
 import 'package:http/http.dart' as http; 
@@ -24,6 +22,7 @@ class _UserEditState extends State<UserEdit> {
   final nomeedit = TextEditingController();
   final emailedit = TextEditingController();
   final numeroedit = TextEditingController();
+  final moradaedit = TextEditingController();
   final localizacaoedit = TextEditingController();
   bool isloading = false;
   @override
@@ -44,12 +43,12 @@ class _UserEditState extends State<UserEdit> {
         elevation: 0.0,
         title: Text("Editar Conta"),
       ),
-      body: Container(
+      body: SingleChildScrollView(child:Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
-              SizedBox(height: 50,),
+              SizedBox(height: 40,),
               Badge(
                 position: BadgePosition.topEnd(),
                 badgeColor:Colors.white,
@@ -64,26 +63,29 @@ class _UserEditState extends State<UserEdit> {
               ),
               ),),
               
-               SizedBox(height: 20,),
-              inputlista("Carregando...",false,nomeedit),
-               SizedBox(height: 20,),
-              inputlista("Carregando...",false,emailedit),
-               SizedBox(height: 20,),
-              inputlista("Carregando...",false,numeroedit),
-               SizedBox(height: 20,),
-              inputlista("Carregando...",false,numeroedit),
-                SizedBox(height: 20,),
-              loginButton("Gravar Alterações",primaryColor,Colors.white,(){
+               SizedBox(height: 10,),
+              inputlista("Carregando...",false,nomeedit,Icons.person),
+               SizedBox(height: 10,),
+              inputlista("Carregando...",false,emailedit,Icons.alternate_email),
+               SizedBox(height: 10,),
+              inputlista("Carregando...",false,numeroedit,Icons.phone),
+               SizedBox(height: 10,),
+              inputlista("Carregando...",false,moradaedit,Icons.pin_drop),
+                SizedBox(height: 10,),
+              loginButton("Alterar Senha",Colors.grey,Colors.white,(){
 
+              }),
+                 SizedBox(height: 20,),
+                loginButton("Gravar Alterações",primaryColor,Colors.white,(){
               })
             ],
           ),
       ),
-    );
+    ));
   }
 
 
-  Widget inputlista(String label,bool isObcure,TextEditingController controller){
+  Widget inputlista(String label,bool isObcure,TextEditingController controller,IconData icon){
   return Padding(
     padding: EdgeInsets.only(left: 20,right: 20,bottom: 10,top: 10),
     child:TextField(
@@ -92,6 +94,7 @@ class _UserEditState extends State<UserEdit> {
     textAlign: TextAlign.center,
     obscureText: isObcure,
     decoration: InputDecoration(
+      prefixIcon: Icon(icon),
       hintText: '$label',
       hintStyle: TextStyle(color:Colors.grey,fontWeight: FontWeight.bold,fontSize: 20),
       fillColor: Color.fromRGBO(237, 237, 237,1),
@@ -138,6 +141,7 @@ class _UserEditState extends State<UserEdit> {
           nomeedit.text = userdataList[0]['nome']+' '+ userdataList[0]['sobrenome'];
           emailedit.text = userdataList[0]['email'];
           numeroedit.text = userdataList[0]['telemovel'];
+          moradaedit.text = userdataList[0]['morada'];
        });
 
     } else {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:kioxkef/models/viewStyles.dart';
 import 'package:http/http.dart' as http;
@@ -100,7 +99,7 @@ Widget _boxView(BuildContext context, String titulo1,String titulo2,String titul
 }
 
 
- _fetchDataH() async {
+_fetchDataH() async {
     setState(() {
       isLoading = true;
     });
@@ -136,6 +135,5 @@ Widget _boxView(BuildContext context, String titulo1,String titulo2,String titul
 
 
   }
-
 
 }

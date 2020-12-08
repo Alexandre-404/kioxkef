@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:kioxkef/models/viewStyles.dart';
 import 'package:http/http.dart' as http;
+import 'package:kioxkef/views/Login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home.dart';
@@ -20,10 +20,12 @@ class _CadastroState extends State<Cadastro> {
 
 
   final _nomeUsuario = TextEditingController();
-   final _sobrenomeUsuario = TextEditingController();
+  final _sobrenomeUsuario = TextEditingController();
   final _emailController = TextEditingController();
   final _numeroTelemovel = TextEditingController();
+  final _morada = TextEditingController();
   final _senhaController = TextEditingController();
+  final _senhaControllerConfirmar = TextEditingController();
   final _scafoldkey = GlobalKey<ScaffoldState>();
 
   @override
@@ -36,7 +38,8 @@ class _CadastroState extends State<Cadastro> {
         title: Text("Criar Conta"),
         elevation: 0.0,
       ),
-      body: Container(
+      body: SingleChildScrollView(
+        child:Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Column(
@@ -44,31 +47,38 @@ class _CadastroState extends State<Cadastro> {
             SizedBox(
               height: 60,
             ),
-            inputlista("Primero Nome",false,_nomeUsuario,Feather.user_plus),
-            inputlista("Último Nome",false,_sobrenomeUsuario,Icons.person_outline),
-            inputlista("Email",false,_emailController,Feather.git_merge),
-            inputlista("+244",false,_numeroTelemovel,Feather.phone),
-            inputlista("Senha",false,_senhaController,Feather.lock),
+            inputlista("Primero Nome",false,_nomeUsuario,Icons.person,TextInputType.text),
+            inputlista("Último Nome",false,_sobrenomeUsuario,Icons.person_outline,TextInputType.text),
+            inputlista("Email",false,_emailController,Icons.alternate_email,TextInputType.emailAddress),
+            inputlista("Morada",false,_morada,Icons.pin_drop,TextInputType.text),
+            inputlista("+244",false,_numeroTelemovel,Icons.phone,TextInputType.number),
+            inputlista("Senha",true,_senhaController,Icons.lock_outline,TextInputType.text),
+            inputlista("Confirmar Senha",true,_senhaControllerConfirmar,Icons.lock,TextInputType.text),
             loginButton(context,"CRIAR CONTA",Colors.amber,Colors.white,(){
                  _cadastrar();
-                 isloading = true;
-            }),
+               setState(() {
+                   isloading = true;
+               });
+                 
+            },),
              SizedBox(
               height: 10,
             ),
              loginButton(context,"JÁ TEM UMA CONTA?",Colors.green,Colors.white,(){
-             
-            })
+              Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) => Login()));
+            },)
           ],
         )
       ),
+      )
     );
   }
 
-  Widget inputlista(String label,bool isObcure,TextEditingController controler,IconData icon){
+  Widget inputlista(String label,bool isObcure,TextEditingController controler,IconData icon,TextInputType type){
   return Padding(
     padding: EdgeInsets.only(left: 10,right: 10,bottom: 10,top: 10),
     child:TextField(
+    keyboardType: type,
     controller: controler,
     style: TextStyle(fontSize: 15.0, color: Colors.white),
     textAlign: TextAlign.left,
@@ -94,7 +104,7 @@ class _CadastroState extends State<Cadastro> {
   Widget loginButton(BuildContext context, String labelText,Color cor,Color corTexto,Function submit){
   return SizedBox(
           width: MediaQuery.of(context).size.width-20, //Full width
-          height: 60,
+          height: 55,
     child:FlatButton(
        color: cor,
        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -114,9 +124,15 @@ class _CadastroState extends State<Cadastro> {
 
   Future<void> _cadastrar() async{
      if(_senhaController.text == "" || _emailController.text == ""){
-         falha();
+         falha("Preencha os campos!");
        return;
      }
+     if(_senhaController.text !=  _senhaControllerConfirmar.text){
+         falha("As senhas não são Iguais");
+       return;
+     }
+
+    
      final response = await http.post('https://www.visualfoot.com/api/conta.php',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -126,6 +142,7 @@ class _CadastroState extends State<Cadastro> {
        'use_sobrenome': _sobrenomeUsuario.text,
        'use_email': _emailController.text,
        'use_telemovel': _numeroTelemovel.text.toString(),
+       'use_morada': _morada.text.toString(),
        'use_senha': _senhaController.text,
     }),
 
@@ -138,12 +155,12 @@ class _CadastroState extends State<Cadastro> {
 
     if(data.toString().replaceAll('"', '') == 'erro')
     {
-      falha();
+      falha("Dados invalidos ,Porfavor insere os dados correctamente");
     }else{
       print(data.toString());
 
         if(data == "erro"){
-           falha();
+           falha("Dados invalidos ,Porfavor insere os dados correctamente");
          return;
         }
       if(!data.toString().contains(','))
@@ -181,9 +198,9 @@ class _CadastroState extends State<Cadastro> {
     });
   }
 
-  void falha(){
+  void falha(String message){
         _scafoldkey.currentState.showSnackBar(
-        SnackBar( content: Text("Dados invalidos ,Porfavor insere os dados correctamente"),
+        SnackBar( content: Text("$message"),
            backgroundColor: Colors.redAccent, duration: Duration(seconds: 4),)
       );
        Future.delayed(Duration(seconds: 2)).then((_){

@@ -72,11 +72,6 @@ Widget cardComments(){
     );
 }
 
-Widget buttonSmall(){
- 
-
-}
-
 
 Widget horizontalBox(BuildContext context,String titulo,String imageUrl,String autor,String likes,String urlBook,String preco,String descricao,String id){
   FlutterMoneyFormatter precoProduto = FlutterMoneyFormatter(amount: double.parse(preco));
@@ -143,7 +138,7 @@ Widget horizontalBox(BuildContext context,String titulo,String imageUrl,String a
                    crossAxisAlignment: CrossAxisAlignment.end,
                    children: [
 
-                Text((precoProduto.output.nonSymbol != "0.00"?precoProduto.output.nonSymbol+"AOA":"Gratuito"),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: precoProduto.output.nonSymbol != "0.00"?primaryColor:Colors.green),),
+                Text((precoProduto.output.nonSymbol != "0.00"?precoProduto.output.nonSymbol+" KZS":"Gratuito"),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: precoProduto.output.nonSymbol != "0.00"?primaryColor:Colors.green),),
                 Container(
                   height: 30,
                   padding: EdgeInsets.all(5),
@@ -165,6 +160,7 @@ Widget horizontalBox(BuildContext context,String titulo,String imageUrl,String a
     errorWidget: (context, url, error) => Icon(Icons.error),
   )));
  }
+
 Widget verticalBox(BuildContext context,String titulo,String imageUrl,String autor,String likes,String urlBook,String preco,String descricao,String id){
   return  GestureDetector(
     onTap:(){
@@ -201,7 +197,7 @@ Widget verticalBox(BuildContext context,String titulo,String imageUrl,String aut
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(5),
                   child: RichText(
-                    overflow: TextOverflow.fade,
+                    overflow: TextOverflow.ellipsis,
                     text: TextSpan(
                         style: TextStyle(color: Colors.grey[700],fontSize: 12,fontWeight: FontWeight.bold),
                         text: "$titulo"),
@@ -218,6 +214,41 @@ Widget verticalBox(BuildContext context,String titulo,String imageUrl,String aut
    ),
   )
  );
+}
+
+showAlertDialog(BuildContext context,Function callBack) {
+  // set up the buttons
+  Widget cancelButton = FlatButton(
+    child: Text("Não"),
+    onPressed:  () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = FlatButton(
+    child: Text("Sim"),
+    onPressed: (){
+      callBack();
+      Navigator.pop(context);
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Confirmação"),
+    content: Text("Tem a certeza que pretende eliminar este ítem?"),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }
 
 
